@@ -63,6 +63,16 @@
     </div>
     <div class="table-operator">
       <a-button type="primary" icon="plus" @click="handleAdd">新建</a-button>
+      <a-dropdown :trigger="['click']" style="margin-bottom: 10px" v-model="DropdownVisible">
+        <a-menu slot="overlay">
+          <a-menu-item v-for="(item, index) in columnsDef" :key="index">
+            <a-checkbox :defaultChecked="true" @change="(e)=>{refreshTableColumns(e.target, e.target.checked, item, index)}">
+              {{ item.title }}
+            </a-checkbox>
+          </a-menu-item>
+        </a-menu>
+        <a-button style="margin-left: 8px"> 筛选列 <a-icon type="down" /> </a-button>
+      </a-dropdown>
       <a-dropdown v-action:edit v-if="selectedRowKeys.length > 0">
         <a-menu slot="overlay">
           <a-menu-item key="1"><a-icon type="delete" />删除</a-menu-item>
@@ -79,7 +89,7 @@
       size="default"
       rowKey="Did"
       bordered
-      :columns="columns"
+      :columns="currentformThead"
       :data="loadData"
       :alert="true"
       :rowSelection="rowSelection"
@@ -92,11 +102,20 @@
         {{ index + 1 }}
       </span>
       <a slot="town" slot-scope="text, record" @click="onDetail(record)">{{ text }}</a>
+      <a slot="secretary" slot-scope="text">
+        <a-popover title="历届村书记">
+          <template slot="content">
+            <p>Content</p>
+            <p>Content</p>
+          </template>
+        {{ text }}
+        </a-popover>
+      </a>
       <span slot="status" slot-scope="text">
         <a-badge :status="text | statusTypeFilter" :text="text | statusFilter" />
       </span>
       <span slot="description" slot-scope="text">
-        <ellipsis :length="4" tooltip>{{ text }}</ellipsis>
+        <ellipsis :length="10" tooltip style="white-space: pre-line;">{{ text }}</ellipsis>
       </span>
 
       <span slot="action" slot-scope="text, record">
@@ -130,81 +149,24 @@ import { getVillageList } from '@/api/village'
 import StepByStepModal from '../list/modules/StepByStepModal'
 import CreateForm from '../list/modules/CreateForm'
 
-const columns = [
-  {
-    title: '#',
-    fixed: 'left',
-    align: 'center',
-    dataIndex: 'Did',
-    width: 50,
-    scopedSlots: { customRender: 'serial' }
-  },
-  {
-    title: '镇街名称',
-    fixed: 'left',
-    align: 'center',
-    dataIndex: 'town_name',
-    width: 150,
-    scopedSlots: { customRender: 'town' }
-  },
-  {
-    title: '村社名称',
-    fixed: 'left',
-    align: 'center',
-    width: 150,
-    dataIndex: 'village_name'
-  },
-  {
-    title: '描述',
-    dataIndex: 'description',
-    width: 150,
-    scopedSlots: { customRender: 'description' }
-  },
-  {
-    title: '服务调用次数',
-    dataIndex: 'callNo',
-    sorter: true,
-    width: 150,
-    needTotal: true,
-    customRender: (text) => text + ' 次'
-  },
-  {
-    title: '状态',
-    dataIndex: 'status',
-    width: 150,
-    scopedSlots: { customRender: 'status' }
-  },
-  {
-    title: '更新时间',
-    dataIndex: 'updatedAt',
-    sorter: true
-  },
-  {
-    title: '操作',
-    dataIndex: 'action',
-    width: '150px',
-    fixed: 'right',
-    scopedSlots: { customRender: 'action' }
-  }
+const columnsDef = [
+  { title: '#', fixed: 'left', align: 'center', dataIndex: 'Did', width: 50, scopedSlots: { customRender: 'serial' } },
+  { title: '镇街名称', fixed: 'left', align: 'center', dataIndex: 'town_name', width: 100, scopedSlots: { customRender: 'town' } },
+  { title: '村社名称', fixed: 'left', align: 'center', width: 100, dataIndex: 'village_name' },
+  { title: '党组织书记', align: 'center', width: 100, dataIndex: 'secretary_name', scopedSlots: { customRender: 'secretary' } },
+
+  { title: '村社描述', dataIndex: 'description', width: 150, scopedSlots: { customRender: 'description' } },
+  { title: '服务调用次数', dataIndex: 'callNo', sorter: true, width: 150, needTotal: true, customRender: (text) => text + ' 次' },
+  { title: '状态', dataIndex: 'status', width: 150, scopedSlots: { customRender: 'status' } },
+  { title: '更新时间', dataIndex: 'updatedAt', sorter: true },
+  { title: '操作', dataIndex: 'action', width: '150px', fixed: 'right', scopedSlots: { customRender: 'action' } }
 ]
 
 const statusMap = {
-  0: {
-    status: 'default',
-    text: '关闭'
-  },
-  1: {
-    status: 'processing',
-    text: '运行中'
-  },
-  2: {
-    status: 'success',
-    text: '已上线'
-  },
-  3: {
-    status: 'error',
-    text: '异常'
-  }
+  0: { status: 'default', text: '关闭' },
+  1: { status: 'processing', text: '运行中' },
+  2: { status: 'success', text: '已上线' },
+  3: { status: 'error', text: '异常' }
 }
 
 export default {
@@ -216,8 +178,10 @@ export default {
     StepByStepModal
   },
   data () {
-    this.columns = columns
+    // this.columns = columnsDef
     return {
+      columnsDef,
+      DropdownVisible: false,
       // create model
       visible: false,
       confirmLoading: false,
@@ -240,8 +204,12 @@ export default {
       selectedRowKeys: [],
       selectedRows: [],
       paginationProp: {
+        pageSizeOptions: ['10', '20', '50'],
+        showQuickJumper: true,
+        // showSizeChanger: true,
         showTotal: (totals) => `总共 ${totals} 条数据` // 用于显示数据总量和当前数据顺序
-      }
+      },
+      currentformThead: []
     }
   },
   filters: {
@@ -254,6 +222,13 @@ export default {
   },
   created () {
     // getRoleList({ t: new Date() })
+    // init table from const
+    this.columnsDef.map((val, key) => {
+      // console.log(val, key)
+        val.show = 'true'
+        val.key = val.dataIndex
+        this.currentformThead.push(val)
+      })
   },
   computed: {
     rowSelection () {
@@ -343,6 +318,16 @@ export default {
       this.queryParam = {
         date: moment(new Date())
       }
+    },
+    refreshTableColumns (target, checked, item, idx) {
+      this.columnsDef[idx].show = checked
+      this.currentformThead = []
+      this.columnsDef.map((val, key) => {
+        if (val.show) {
+          this.currentformThead.push(val)
+        }
+      })
+      // console.log(checked, idx, this.currentformThead)
     }
   }
 }

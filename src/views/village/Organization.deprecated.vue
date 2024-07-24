@@ -57,7 +57,7 @@
 </template>
 <script>
 const columns = [
-  { title: '#', width: 70, dataIndex: 'Did', key: 'Did', fixed: 'left', align: 'center', scopedSlots: { customRender: 'Did' } },
+  { title: '#', width: 70, dataIndex: 'Did', key: 'Did', fixed: 'left', scopedSlots: { customRender: 'Did' } },
   { title: '镇街名', width: 100, dataIndex: 'town', key: 'town', fixed: 'left', scopedSlots: { customRender: 'town' } },
   { title: '村社名', width: 100, dataIndex: 'age', key: 'age', fixed: 'left' },
   // { title: 'Age', width: 100, dataIndex: 'age', key: 'age', fixed: 'left', sorter: (a, b) => a.age - b.age },

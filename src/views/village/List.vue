@@ -108,7 +108,7 @@
             <p>Content</p>
             <p>Content</p>
           </template>
-        {{ text }}
+          {{ text }}
         </a-popover>
       </a>
       <span slot="status" slot-scope="text">
@@ -150,14 +150,32 @@ import StepByStepModal from '../list/modules/StepByStepModal'
 import CreateForm from '../list/modules/CreateForm'
 
 const columnsDef = [
-  { title: '#', fixed: 'left', align: 'center', dataIndex: 'Did', width: 50, scopedSlots: { customRender: 'serial' } },
-  { title: '镇街名称', fixed: 'left', align: 'center', dataIndex: 'town_name', width: 100, scopedSlots: { customRender: 'town' } },
-  { title: '村社名称', fixed: 'left', align: 'center', width: 100, dataIndex: 'village_name' },
-  { title: '党组织书记', align: 'center', width: 100, dataIndex: 'secretary_name', scopedSlots: { customRender: 'secretary' } },
-
+  { title: '#', fixed: 'left', dataIndex: 'Did', width: 50, scopedSlots: { customRender: 'serial' } },
+  { title: '镇街名称', fixed: 'left', dataIndex: 'town_name', scopedSlots: { customRender: 'town' } },
+  { title: '村社名称', fixed: 'left', dataIndex: 'village_name' },
+  {
+    title: '班子情况',
+    children: [
+      { title: '党组织书记', dataIndex: 'secretary_name', scopedSlots: { customRender: 'secretary' } }
+    ]
+  },
+  {
+    title: '队伍情况',
+    children: [
+      { title: '书记是否换届调整', dataIndex: 'secretary_name', scopedSlots: { customRender: 'secretary' } },
+      { title: '书记后备人选', dataIndex: 'secretary_name', scopedSlots: { customRender: 'secretary' } }
+    ]
+  },
   { title: '村社描述', dataIndex: 'description', width: 150, scopedSlots: { customRender: 'description' } },
-  { title: '服务调用次数', dataIndex: 'callNo', sorter: true, width: 150, needTotal: true, customRender: (text) => text + ' 次' },
-  { title: '状态', dataIndex: 'status', width: 150, scopedSlots: { customRender: 'status' } },
+  {
+    title: '考核情况',
+    children: [
+      { title: '五星三色成绩', dataIndex: 'secretary_name', scopedSlots: { customRender: 'secretary' } },
+      { title: '近五年镇街考核排名', dataIndex: 'secretary_name', scopedSlots: { customRender: 'secretary' } }
+    ]
+  },
+  { title: '服务调用次数', dataIndex: 'callNo', sorter: true, needTotal: true, customRender: (text) => text + ' 次' },
+  { title: '状态', dataIndex: 'status', scopedSlots: { customRender: 'status' } },
   { title: '更新时间', dataIndex: 'updatedAt', sorter: true },
   { title: '操作', dataIndex: 'action', width: '150px', fixed: 'right', scopedSlots: { customRender: 'action' } }
 ]
@@ -222,11 +240,21 @@ export default {
   },
   created () {
     // getRoleList({ t: new Date() })
-    // init table from const
     this.columnsDef.map((val, key) => {
-      // console.log(val, key)
+      // console.log(val.width === undefined, val.width, val.dataIndex)
+        // init default values
+        if (!val.children && val.width === undefined && key !== columnsDef.length - 2) val.width = 100
+        if (!val.align) val.align = 'center'
+        if (val.children) {
+          val.children.map((v, k) => {
+            if (!v.align) v.align = 'center'
+            if (v.width === undefined) v.width = 100
+          })
+        }
         val.show = 'true'
         val.key = val.dataIndex
+        // console.log(val)
+        // init table from const
         this.currentformThead.push(val)
       })
   },

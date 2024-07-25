@@ -98,19 +98,29 @@
       :rowClassName="(_, index) => index % 2 == 0 ? 'odd' : 'even'"
       :scroll="{ x: 1000, y: 1300 }"
     >
-      <span slot="serial" slot-scope="text, record, index">
-        {{ index + 1 }}
-      </span>
-      <a slot="town" slot-scope="text, record" @click="onDetail(record)">{{ text }}</a>
+      <span slot="serial" slot-scope="text, record, index">{{ index + 1 }}</span>
+      <a slot="town" slot-scope="text, record" @click="onTownDetail(record)">{{ text }}</a>
+      <a slot="village" slot-scope="text, record" @click="onVillageDetail(record)">{{ text }}</a>
       <a slot="secretary" slot-scope="text">
         <a-popover title="历届村书记">
           <template slot="content">
-            <p>Content</p>
-            <p>Content</p>
+            <p>2023: 张三</p>
+            <p>2022: 李四</p>
           </template>
           {{ text }}
         </a-popover>
       </a>
+      <a slot="team_cnt" slot-scope="text">
+        <a-popover title="三委班子 | 其他">
+          <template slot="content">
+            <p>3 | 7</p>
+          </template>
+          {{ text }}10
+        </a-popover>
+      </a>
+      <span slot="team_reserve" slot-scope="text">{{ text }}1 | 2</span>
+      <span slot="5s3c_star" slot-scope="text">{{ text }}3</span>
+      <span slot="eval_town_ranks_5y" slot-scope="text">{{ text }}13|12|521|201|131</span>
       <span slot="status" slot-scope="text">
         <a-badge :status="text | statusTypeFilter" :text="text | statusFilter" />
       </span>
@@ -152,26 +162,26 @@ import CreateForm from '../list/modules/CreateForm'
 const columnsDef = [
   { title: '#', fixed: 'left', dataIndex: 'Did', width: 50, scopedSlots: { customRender: 'serial' } },
   { title: '镇街名称', fixed: 'left', dataIndex: 'town_name', scopedSlots: { customRender: 'town' } },
-  { title: '村社名称', fixed: 'left', dataIndex: 'village_name' },
+  { title: '村社名称', fixed: 'left', dataIndex: 'village_name', scopedSlots: { customRender: 'village' } },
   {
     title: '班子情况',
     children: [
-      { title: '党组织书记', dataIndex: 'secretary_name', scopedSlots: { customRender: 'secretary' } }
+      { title: '书记姓名', dataIndex: 'secretary_name', scopedSlots: { customRender: 'secretary' } }
     ]
   },
   {
     title: '队伍情况',
     children: [
-      { title: '书记是否换届调整', dataIndex: 'secretary_name', scopedSlots: { customRender: 'secretary' } },
-      { title: '书记后备人选', dataIndex: 'secretary_name', scopedSlots: { customRender: 'secretary' } }
+      { title: '队伍人数', dataIndex: 'team_cnt', scopedSlots: { customRender: 'team_cnt' } },
+      { title: '后备力量', dataIndex: 'team_reserve', scopedSlots: { customRender: 'team_reserve' } }
     ]
   },
   { title: '村社描述', dataIndex: 'description', width: 150, scopedSlots: { customRender: 'description' } },
   {
     title: '考核情况',
     children: [
-      { title: '五星三色成绩', dataIndex: 'secretary_name', scopedSlots: { customRender: 'secretary' } },
-      { title: '近五年镇街考核排名', dataIndex: 'secretary_name', scopedSlots: { customRender: 'secretary' } }
+      { title: '五星三色星级', dataIndex: '5s3c_star', scopedSlots: { customRender: '5s3c_star' } },
+      { title: '近五年镇街考核排名', dataIndex: 'eval_town_ranks_5y', scopedSlots: { customRender: 'eval_town_ranks_5y' } }
     ]
   },
   { title: '服务调用次数', dataIndex: 'callNo', sorter: true, needTotal: true, customRender: (text) => text + ' 次' },
@@ -267,7 +277,7 @@ export default {
     }
   },
   methods: {
-    onDetail (param) {
+    onVillageDetail (param) {
       this.$router.push({ name: 'VillageDetail', params: { villageMeta: param } })
     },
     handleAdd () {

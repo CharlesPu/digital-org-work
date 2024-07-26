@@ -13,28 +13,66 @@ export const asyncRouterMap = [
     name: 'index',
     component: BasicLayout,
     meta: { title: 'menu.home' },
-    redirect: '/village/list',
+    redirect: '/organization/list',
     children: [
-      // village
+      // organization
       {
-        path: '/village',
-        name: 'village',
-        redirect: '/village/list',
+        path: '/organization',
+        name: 'organization',
+        redirect: '/organization/list',
         component: RouteView,
-        meta: { title: 'menu.village', keepAlive: true, icon: 'apartment' },
+        meta: { title: 'menu.organization', keepAlive: true, icon: 'apartment' },
         children: [
           {
-            path: '/village/list',
+            path: '/organization/list',
             name: 'VillageList',
-            component: () => import('@/views/village/List'),
-            meta: { title: 'menu.village.list', keepAlive: true }
+            component: () => import('@/views/organization/List'),
+            meta: { title: 'menu.organization.listByVillage', keepAlive: true }
           },
           {
-            path: '/village/detail',
+            path: '/organization/detailByVillage',
             name: 'VillageDetail',
-            component: () => import('@/views/village/Detail'),
-            meta: { title: 'menu.village.detail', keepAlive: true },
+            component: () => import('@/views/organization/DetailByVillage'),
+            meta: { title: 'menu.organization.detailByVillage', keepAlive: true },
             hidden: true
+          }
+        ]
+      },
+      // team
+      {
+        path: '/team',
+        name: 'team',
+        redirect: '/team/listByVillage',
+        component: RouteView,
+        meta: { title: 'menu.team', keepAlive: true, icon: 'apartment' },
+        children: [
+          {
+            path: '/team/listByVillage',
+            name: 'VillageTeamList',
+            component: () => import('@/views/team/ListByVillage'),
+            meta: { title: 'menu.team.listByVillage', keepAlive: true }
+          }
+        ]
+      },
+      // scene
+      {
+        path: '/scene',
+        name: 'scene',
+        redirect: '/scene/5s3c',
+        component: RouteView,
+        meta: { title: 'menu.scene', keepAlive: true, icon: 'apartment' },
+        children: [
+          {
+            path: '/scene/5s3c',
+            name: 'Scene_5s3c',
+            component: () => import('@/views/scene/5s3c'),
+            meta: { title: 'menu.scene.5s3c', keepAlive: true }
+          },
+          {
+            path: '/scene/reserve',
+            name: 'Scene_reserve',
+            component: () => import('@/views/scene/Reserve'),
+            meta: { title: 'menu.scene.reserve', keepAlive: true }
           }
         ]
       },

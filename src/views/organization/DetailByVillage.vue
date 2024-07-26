@@ -45,7 +45,6 @@
   </div>
 </template>
 <script>
-// import { STable } from '@/components'
 
 export default {
   data () {
